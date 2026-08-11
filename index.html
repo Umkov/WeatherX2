@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Main - WeatherX</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="./main.js"></script>
+</head>
+<body>
+    <header>
+        <h1 class="title">WeatherX</h1>
+        <button onclick="location.href='news.html'">News</button>
+        <button onclick="location.href='currentstorms.html'">Current Storms</button>
+        <button onclick="location.href='models.html'">Models</button>
+        <button onclick="location.href='database.html'">Database</button>
+    </header>
+        <h1 class="newstitle">Database Viewer</h1>
+        <div id="basinButtons">
+    <button class="basinBtn" data-basin="WORLD">World</button>
+    <button class="basinBtn" data-basin="NATL">NATL</button>
+    <button class="basinBtn" data-basin="EPAC">EPAC</button>
+    <button class="basinBtn" data-basin="WPAC">WPAC</button>
+    <button class="basinBtn" data-basin="NIO">NIO</button>
+    <button class="basinBtn" data-basin="SWIO">SWIO</button>
+    <button class="basinBtn" data-basin="AUS">AUS</button>
+    <button class="basinBtn" data-basin="SPAC">SPAC</button>
+</div>
+        <div class="dbsearch">
+        <input id="seasonYear" placeholder="Year, e.g. 2005">
+        <button id="plotSeasonBtn">Plot season</button>
+        <input id="stormSearch" placeholder="Storm ID or name (e.g. AL052019 or DORIAN)">
+        <button id="stormSearchBtn">Search</button>
+        </div>
+        <div id="stormMatches"></div>
+        <div class="layout">
+            <div class="left">
+                <canvas id="trackCanvas" width="1400" height="700"></canvas>
+            </div>
+
+            <div class="right">
+                <pre id="stormOutput"></pre>
+            </div>
+        </div>
+    <footer></footer>
+</body>
+</html>

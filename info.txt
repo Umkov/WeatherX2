@@ -1,0 +1,9 @@
+name - WeatherX
+color - Основной Цвет:
+#0D58A6	#26517C	#04376C	#4188D2	#689CD2
+Вторичный Цвет A:
+#2419B2	#352F85	#100873	#574DD8	#7972D8
+Вторичный Цвет B:
+#00AA72	#207F60	#006E4A	#35D4A0	#60D4AE
+
+menu - current weather - forecast - models - news - about
