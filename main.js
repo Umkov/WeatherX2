@@ -6,6 +6,10 @@ const input = document.getElementById("stormSearch");
 const button = document.getElementById("stormSearchBtn");
 const matchesEl = document.getElementById("stormMatches");
 const output = document.getElementById("stormOutput");
+const animateStormBtn = document.getElementById("animateStormBtn");
+
+let animationId = null;
+let animationRunning = false;
 
 const seasonYearInput = document.getElementById("seasonYear");
 const plotSeasonBtn = document.getElementById("plotSeasonBtn");
@@ -22,6 +26,9 @@ let currentView = "WORLD";
 const mapImg = new Image();
 // If you ever use a URL map (not local), keep this line:
 mapImg.crossOrigin = "anonymous";
+
+const hurricaneImg = new Image();
+hurricaneImg.src = "/images/hurricane_icon.png";
 
 // IMPORTANT: use a ROOT-relative path if possible:
 mapImg.src = "/images/nasa_world_map.jpg";
@@ -516,6 +523,195 @@ function strongestByWind(storms) {
   }, null);
 }
 
+function hurdatTimestamp(date, time) {
+    if (!date || !time) return null;
+
+    // HURDAT:
+    // date = YYYYMMDD
+    // time = HHMM
+
+    const year =
+        Number(date.slice(0, 4));
+
+    const month =
+        Number(date.slice(4, 6)) - 1;
+
+    const day =
+        Number(date.slice(6, 8));
+
+    const hour =
+        Number(time.slice(0, 2));
+
+    const minute =
+        Number(time.slice(2, 4));
+
+    return Date.UTC(
+        year,
+        month,
+        day,
+        hour,
+        minute
+    );
+}
+
+function animateStorm(storm) {
+    // Stop previous animation
+    if (animationId !== null) {
+        cancelAnimationFrame(animationId);
+    }
+
+    const pts = storm.entries
+        .filter(e =>
+            typeof e.lat === "number" &&
+            typeof e.lon === "number"
+        )
+        .map(e => ({
+            ...e,
+            timestamp: hurdatTimestamp(e.date, e.time)
+        }))
+        .filter(e => e.timestamp !== null);
+
+    if (pts.length < 2) return;
+
+    animationRunning = true;
+
+    // How fast simulated time passes.
+    // 1 real second = 6 simulated hours
+    const SIM_HOURS_PER_SECOND = 12;
+
+    const startTime = pts[0].timestamp;
+    const endTime = pts[pts.length - 1].timestamp;
+
+    const realStart = performance.now();
+
+    function animate(now) {
+        const realElapsedSeconds =
+            (now - realStart) / 1000;
+
+        const simulatedElapsedMs =
+            realElapsedSeconds *
+            SIM_HOURS_PER_SECOND *
+            60 * 60 * 1000;
+
+        const currentSimTime =
+            startTime + simulatedElapsedMs;
+
+        // Animation finished
+        if (currentSimTime >= endTime) {
+            drawTrack(storm);
+
+            const last = pts[pts.length - 1];
+
+            const p = projectLatLon(
+                last.lat,
+                last.lon,
+                canvas.width,
+                canvas.height
+            );
+
+            drawHurricaneIcon(
+                p.x,
+                p.y,
+                -performance.now() / 300
+            );
+
+            animationRunning = false;
+            animationId = null;
+
+            return;
+        }
+
+        // Find which two HURDAT points surround the current time
+        let index = 0;
+
+        for (let i = 0; i < pts.length - 1; i++) {
+            if (
+                currentSimTime >= pts[i].timestamp &&
+                currentSimTime <= pts[i + 1].timestamp
+            ) {
+                index = i;
+                break;
+            }
+        }
+
+        const current = pts[index];
+        const next = pts[index + 1];
+
+        const segmentDuration =
+            next.timestamp - current.timestamp;
+
+        const segmentElapsed =
+            currentSimTime - current.timestamp;
+
+        const progress =
+            segmentDuration > 0
+                ? segmentElapsed / segmentDuration
+                : 0;
+
+        const p1 = projectLatLon(
+            current.lat,
+            current.lon,
+            canvas.width,
+            canvas.height
+        );
+
+        const p2 = projectLatLon(
+            next.lat,
+            next.lon,
+            canvas.width,
+            canvas.height
+        );
+
+        const x =
+            p1.x + (p2.x - p1.x) * progress;
+
+        const y =
+            p1.y + (p2.y - p1.y) * progress;
+
+        // Redraw map + track
+        drawTrack(storm);
+
+        // Counterclockwise rotation
+        const rotation =
+            -performance.now() / 300;
+
+        drawHurricaneIcon(
+            x,
+            y,
+            rotation
+        );
+
+        animationId =
+            requestAnimationFrame(animate);
+    }
+
+    animationId =
+        requestAnimationFrame(animate);
+}
+
+function drawHurricaneIcon(x, y, rotation = 0) {
+    const size = 35;
+
+    if (!hurricaneImg.complete || hurricaneImg.naturalWidth === 0) {
+        return;
+    }
+
+    ctx.save();
+
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+
+    ctx.drawImage(
+        hurricaneImg,
+        -size / 2,
+        -size / 2,
+        size,
+        size
+    );
+
+    ctx.restore();
+}
+
 function strongestByLowestPressure(storms) {
   return storms.reduce((best, storm) => {
     if (!best) return storm;
@@ -613,4 +809,10 @@ document
         }
     });
 
+});
+
+animateStormBtn.addEventListener("click", () => {
+    if (lastStormForRedraw) {
+        animateStorm(lastStormForRedraw);
+    }
 });
