@@ -12,11 +12,48 @@
         <button onclick="location.href='news.html'">News</button>
         <button onclick="location.href='currentstorms.html'">Current Storms</button>
         <button onclick="location.href='models.html'">Models</button>
-        <button onclick="location.href='database.html'">Database</button>
+        <button onclick="location.href='index.html'">Database</button>
     </header>
-        <h1 class="newstitle">Forecast Models</h1>
-    
-    <footer></footer>
+    <main>
+        <div class="modelvisualizer">
+            <h1 class="newstitle">Forecast Models</h1>
+            <div class="modelList">
+                <button id="loadGFS">GFS</button>
+            </div>
+            <div class="viewtype">
+                <button id="pressureMode">MSLP</button>
+                <button id="precipMode">MSLP + Precip(mm/hr)</button>  
+                <button id="windMode">MSLP + 10m Wind(kt)</button>    
+                <button id="irMode">Simulated IR</button>
+            </div>
+
+            <div id="timelineControls">
+                <button id="prevForecast">◀</button>
+
+                <input
+                    type="range"
+                    id="forecastSlider"
+                    min="0"
+                    max="0"
+                    value="0"
+                >
+
+                <button id="nextForecast">▶</button>
+
+                <span id="forecastTime"></span>
+            </div>
+
+            <canvas id="modelCanvas" width="900" height="600"></canvas>
+
+            <p id="modelStatus">No model loaded</p>
+        </div>
+        
+    </main>
+    <footer>
+
+    </footer>
+
+    <script type="module" src="./forecast.js"></script>
 </body>
 </html>
 

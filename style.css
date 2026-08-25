@@ -33,7 +33,6 @@ button {
     font-size: 45px;
     padding: 20px;
     text-align: center;
-    background-color: #4188D2;
     margin: 0;
 }
 
@@ -117,3 +116,22 @@ input {
 .basinBtn.active{
     outline:3px solid white;
 }
+
+.modelvisualizer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    background-color: #574DD8;
+    border: none;
+    margin: 30px;
+}
+
+#timelineControls {
+    background-color: #35D4A0;
+    border:#006E4A 5px solid;
+}
+
+
+
+
